@@ -32,7 +32,7 @@ requests.packages.urllib3.disable_warnings()
 # FUNCTIONS
 # -----------------------------------------------------------------------------
 
-def getSensors(restclient, pageSize=100, expand_interfaces=False):
+def getSensors(restclient, config_age, update_age, pageSize=250, expand_interfaces=False):
     """ Retrieves data about all sensors for the given restclient.
 
     Arguments:
@@ -58,8 +58,13 @@ def getSensors(restclient, pageSize=100, expand_interfaces=False):
                         temp_dict.pop("interfaces", None)
                         sensorList.append(temp_dict)
                 else:
-                    # result["interfaces"] = len(result["interfaces"])
-                    sensorList.append(result)
+                    # if the sensor's last config fetch or last software was
+                    # more than the specified number of days ago, save it. If
+                    # the user doesn't specify an age, all sensors will be
+                    # saved.
+                    if ( int(result["last_config_fetch_at"]) < config_age ) or \
+                       ( int(result["last_software_update_at"]) < update_age ):
+                        sensorList.append(result)
         else:
             print "[ERROR] reading from offset '{}' at the sensors API. Response:".format(offset)
             print resp, resp.text
@@ -175,6 +180,8 @@ if __name__ == "__main__":
     parser.add_argument('--credentials', default='api_credentials.json', help="path to credentials file")
     parser.add_argument('--csv', default='sensors.csv', help="name of CSV output file")
     parser.add_argument('--expand', action='store_true', help="display each interface on its own line")
+    parser.add_argument('--last_config_fetch', help="number of days since last config fetch")
+    parser.add_argument('--last_software_update', help="number of days since last software update")
     args = parser.parse_args()
 
     restclient = RestClient(
@@ -187,7 +194,18 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     # Dump sensors to CSV
 
-    toCSV = getSensors(restclient, pageSize=250, expand_interfaces=args.expand)
+    # First determine minimum age. If the user does not specify an age, then we
+    # pass the current time to the getSensors function.
+    if args.last_config_fetch is None:
+        config_age = int(time.time())
+    else:
+        config_age = int(time.time()) - int(args.last_config_fetch) * 24 * 60 * 60
+    if args.last_software_update is None:
+        update_age = int(time.time())
+    else:
+        update_age = int(time.time()) - int(args.last_software_update) * 24 * 60 * 60
+
+    toCSV = getSensors(restclient, config_age=config_age, update_age=update_age, expand_interfaces=args.expand)
 
     # add fields to each line in the CSV with human-readable version of time/date
     # for the fields that are expressed in seconds

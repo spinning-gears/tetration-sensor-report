@@ -11,6 +11,8 @@ Running `getSensorData.py --help` shows that the script has the following inputs
 - `--credentials`: path to a JSON credentials file for Tetration
 - `--csv`: *optional* argument that specifies the name to use for the file. If no name is specified, `sensors.csv` will be used.
 - `--expand`: *optional* switch that specifies each interface of each sensor should occupy its own line in the report
+- `--last_config_fetch`: *optional* fetch only sensors whose last config fetch has been **more** than this integer number of days ago
+- `--last_software_update`: *optional* fetch only sensors whose last software update has been **more** than this integer number of days ago
 
 The script uses the REST API to retrieve 250 sensors at a time. That number is specified by the locally declared `pageSize` variable, so you are free to change that in the script if your environment has different requirements.
 
