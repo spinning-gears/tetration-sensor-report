@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Remove one specific VRF and its associated elements.')
     parser.add_argument('--tetration', help="URL of Tetration instance")
-    parser.add_argument('--credentials', help="path to credentials file")
+    parser.add_argument('--credentials', default='api_credentials.json', help="path to credentials file")
     parser.add_argument('--csv', default='sensors.csv', help="name of CSV output file")
     parser.add_argument('--expand', action='store_true', help="display each interface on its own line")
     args = parser.parse_args()
