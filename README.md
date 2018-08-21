@@ -1,6 +1,6 @@
 # Tetration Sensor Report
 
-The contents of this repository generate a CSV report of all sensors registered with Tetration. This is the same data available within the Tetration GUI, but some people prefer to browse this data offline with a tool like Excel.
+The contents of this repository generate a CSV report of all sensors registered with Tetration. This is the same data available within the Tetration GUI, but some people prefer to browse this data offline with a tool like Excel. The API returns time expressed in epoch format, so the script converts those fields to local time zone.
 
 This script will also look for duplicates like host name and save them to a separate CSV file. More details below.
 
@@ -13,11 +13,32 @@ Running `getSensorData.py --help` shows that the script has the following inputs
 - `--expand`: *optional* switch that specifies each interface of each sensor should occupy its own line in the report
 - `--last_config_fetch`: *optional* fetch only sensors whose last config fetch has been **more** than this integer number of days ago
 - `--last_software_update`: *optional* fetch only sensors whose last software update has been **more** than this integer number of days ago
+- `--filter_deleted`: *optional* does not include sensors that have been deleted but still show up in Tetration because they haven't been garbage-collected
 
 The script uses the REST API to retrieve 250 sensors at a time. That number is specified by the locally declared `pageSize` variable, so you are free to change that in the script if your environment has different requirements.
 
-The API returns time expressed in epoch format, so the script converts those fields to local time zone.
+### Examples
 
+Generate a CSV named `sensors.csv` containing all sensors.
+```Python
+python getSensorData.py --tetration https://example.com
+```
+Generate a CSV named `sensors.csv` containing all sensors that have not retrieved their configuration from Tetration in 10 days *or more*.
+```Python
+python getSensorData.py --tetration https://example.com --last_config_fetch 10
+```
+Generate a CSV named `sensors.csv` containing all sensors that have not retrieved their configuration from Tetration in 10 days *or more* while while ignoring sensors that have been deleted from Tetration. Deleted sensors remain in the database for some number of hours before being "garbage collected".
+```Python
+python getSensorData.py --tetration https://example.com --last_config_fetch 10 --filter_deleted
+```
+Generate a CSV named `unique.csv` containing all sensors that have not been deleted.
+```Python
+python getSensorData.py --tetration https://example.com --csv unique.csv --filter_deleted
+```
+Generate a CSV named `expanded.csv` containing every interface of every host. Sensors and host names will appear multiple times if a host has multiple interfaces. More details about this can be found below.
+```Python
+python getSensorData.py --tetration https://example.com --csv expanded.csv --expand
+```
 ## Output
 
 The output will look slightly different depending on whether or not you use the `--expand` switch.
