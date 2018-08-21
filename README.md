@@ -20,23 +20,23 @@ The script uses the REST API to retrieve 250 sensors at a time. That number is s
 ### Examples
 
 Generate a CSV named `sensors.csv` containing all sensors.
-```Python
+```bash
 python getSensorData.py --tetration https://example.com
 ```
 Generate a CSV named `sensors.csv` containing all sensors that have not retrieved their configuration from Tetration in 10 days *or more*.
-```Python
+```bash
 python getSensorData.py --tetration https://example.com --last_config_fetch 10
 ```
 Generate a CSV named `sensors.csv` containing all sensors that have not retrieved their configuration from Tetration in 10 days *or more* while while ignoring sensors that have been deleted from Tetration. Deleted sensors remain in the database for some number of hours before being "garbage collected".
-```Python
+```bash
 python getSensorData.py --tetration https://example.com --last_config_fetch 10 --filter_deleted
 ```
 Generate a CSV named `unique.csv` containing all sensors that have not been deleted.
-```Python
+```bash
 python getSensorData.py --tetration https://example.com --csv unique.csv --filter_deleted
 ```
 Generate a CSV named `expanded.csv` containing every interface of every host. Sensors and host names will appear multiple times if a host has multiple interfaces. More details about this can be found below.
-```Python
+```bash
 python getSensorData.py --tetration https://example.com --csv expanded.csv --expand
 ```
 ## Output
