@@ -2,6 +2,8 @@
 
 The contents of this repository generate a CSV report of all sensors registered with Tetration. This is the same data available within the Tetration GUI, but some people prefer to browse this data offline with a tool like Excel. The API returns time expressed in epoch format, so the script converts those fields to local time zone.
 
+Sensors in the VRF named `Tetration` will be ignored (VMs that are part of the Tetration appliance).
+
 This script will also look for duplicates like host name and save them to a separate CSV file. More details below.
 
 ## Running the script

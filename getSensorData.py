@@ -51,6 +51,9 @@ def getSensors(restclient, config_age, update_age, pageSize=250, expand_interfac
         resp = restclient.get('/openapi/v1/sensors?limit=' + str(pageSize) + '&offset=' + offset)
         if resp.status_code == 200:
             for result in resp.json()["results"]:
+                # do not include sensors in the Tetration VRF
+                if result['interfaces'][0]['vrf'] == 'Tetration':
+                    continue
                 if expand_interfaces:
                     for intf in result["interfaces"]:
                         temp_dict = result.copy()
@@ -76,7 +79,7 @@ def getSensors(restclient, config_age, update_age, pageSize=250, expand_interfac
             break
         
         # this is the control for this while loop
-        if 'offset' in resp.json().iterkeys():
+        if 'offset' in resp.json():
             offset = resp.json()["offset"]
         else:
             break
@@ -111,7 +114,13 @@ def writeToCsv(source, filename):
         filename {string}: name to use when creating CSV
     """
     if len(source):
-        myKeys = source[0].keys()
+        # not every sensor has the same keys as all other sensors, so we step
+        # through every key for every sensor to ensure they are all included
+        myKeys = []
+        for s in source:
+            for k in s.iterkeys():
+                if k not in myKeys:
+                    myKeys.append(k)    
         # deleted_at is a key that appears for sensors that have been deleted
         # but not yet garbage collected in Tetration; it will be rare to see
         # this key but we make sure it is included just in case
@@ -181,7 +190,7 @@ if __name__ == "__main__":
     # ARGPARSE
 
     parser = argparse.ArgumentParser(description='Remove one specific VRF and its associated elements.')
-    parser.add_argument('--tetration', help="URL of Tetration instance")
+    parser.add_argument('--tetration', required=True, help="URL of Tetration instance")
     parser.add_argument('--credentials', default='api_credentials.json', help="path to credentials file")
     parser.add_argument('--csv', default='sensors.csv', help="name of CSV output file")
     parser.add_argument('--expand', action='store_true', help="display each interface on its own line")
