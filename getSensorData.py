@@ -52,7 +52,7 @@ def getSensors(restclient, config_age, update_age, pageSize=250, expand_interfac
         if resp.status_code == 200:
             for result in resp.json()["results"]:
                 # do not include sensors in the Tetration VRF
-                if result['interfaces'][0]['vrf'] == 'Tetration':
+                if len(result['interfaces']) and result['interfaces'][0]['vrf'] == 'Tetration':
                     continue
                 if expand_interfaces:
                     for intf in result["interfaces"]:
